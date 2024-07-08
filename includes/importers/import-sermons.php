@@ -5,35 +5,28 @@ require_once('wp-load.php');
 // URL to your RSS feed
 $rss_feed_url = 'https://www.kcg.org.uk/podcast/';
 
-// Function to download file and return path
-function download_file($url, $path) {
-    $response = wp_remote_get($url, array('timeout' => 300));
-    
-    if (is_wp_error($response)) {
-        return false;
-    }
-    
-    $body = wp_remote_retrieve_body($response);
-    
-    if (empty($body)) {
-        return false;
-    }
-    
-    $file = fopen($path, 'w');
-    fwrite($file, $body);
-    fclose($file);
-    
-    return $path;
-}
-
 // Fetch RSS feed
 $rss = simplexml_load_file($rss_feed_url);
 
+// Construct sanitized audio file name
+function sanitize_audio_filename($title) {
+    // Allow only alphanumeric characters and hyphens
+    $sanitized_title = preg_replace('/[^a-zA-Z0-9-]/', '', $title);
+    return $sanitized_title;
+}
+
+// Get attachment ID by file path
+function get_attachment_id_from_src($file_path) {
+    global $wpdb;
+    $attachment = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $file_path));
+    return isset($attachment[0]) ? $attachment[0] : false;
+}
+
 if ($rss) {
     // Loop through each item in RSS feed
-    $count = 0; // Limit to processing five items
+    // $count = 0; // Limit to processing five items
     foreach ($rss->channel->item as $item) {
-        if ($count >= 5) break; // Process only five items
+        // if ($count >= 5) break; // Process only five items
 
         // Extract data from RSS item
         $title = (string) $item->title;
@@ -41,13 +34,11 @@ if ($rss) {
         $description = (string) $item->description;
         $pubDate = date('Y-m-d H:i:s', strtotime((string) $item->pubDate));
         $passage = (string) $item->children('itunes', true)->subtitle;
-        $audio_url = (string) $item->enclosure->attributes()->url; // Audio file URL
 
         echo "Processing item: $title\n";
         echo "Speaker: $author\n";
         echo "Passage: $passage\n";
         echo "Date: $pubDate\n";
-        echo "Audio URL: $audio_url\n";
 
         // Extract series from description
         preg_match('/Series: ([^.]+)\./', $description, $series_matches);
@@ -74,25 +65,25 @@ if ($rss) {
         }
         echo "Speaker ID: $speaker_id\n";
 
-        // Prepare ACF field name for passage and audio file
-        $acf_field_passage = 'sermon_passage';
-        $acf_field_audio = 'sermon_audio';
+        // Get sanitized title
+        $sanitized_title = sanitize_audio_filename($title);
 
-        // Download audio file and get path
+        // Construct audio file path
         $upload_dir = wp_upload_dir();
-        $audio_file_path = $upload_dir['basedir'] . '/sermons/audio/';
-        $audio_file_name = date('Y-m-d', strtotime($pubDate)) . '_' . sanitize_file_name($title) . '.mp3';
-        $audio_file_path .= $audio_file_name;
+        $audio_file_url = $upload_dir['baseurl'] . '/sermons/audio/';
+        $audio_file_name = date('y-m-d', strtotime($pubDate)) . '_' . $sanitized_title . '.mp3';
+        $audio_file_url .= $audio_file_name;
 
-        // Download file and check if successful
-        $downloaded = download_file($audio_url, $audio_file_path);
+        echo "Expected audio file URL: $audio_file_url\n";
 
-        if (!$downloaded) {
-            echo "Failed to download audio file.\n";
-            continue;
+        // Get attachment ID for the audio file
+        $attachment_id = get_attachment_id_from_src($audio_file_url);
+
+        if ($attachment_id) {
+            echo "Audio file exists for $title. Attachment ID: $attachment_id\n";
+        } else {
+            echo "Audio file NOT found for $title\n";
         }
-
-        echo "Audio file downloaded: $audio_file_path\n";
 
         // Prepare sermon data
         $sermon_data = array(
@@ -111,7 +102,10 @@ if ($rss) {
             update_post_meta($sermon_id, 'sermon_passage', $passage);
             wp_set_object_terms($sermon_id, $series_id, 'series');
             wp_set_object_terms($sermon_id, $speaker_id, 'speaker');
-            update_field($acf_field_audio, array('url' => $audio_file_path), $sermon_id);
+            
+            if ($attachment_id) {
+                update_field('sermon_audio', $attachment_id, $sermon_id);
+            }
 
             echo "Sermon imported successfully. Sermon ID: $sermon_id\n";
         } else {
@@ -119,7 +113,7 @@ if ($rss) {
         }
 
         // Increment count
-        $count++;
+        // $count++;
     }
 
     echo "Import process completed.\n";
