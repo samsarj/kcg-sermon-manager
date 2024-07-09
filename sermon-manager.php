@@ -40,7 +40,7 @@ if (!class_exists('ACF')) {
 require_once(plugin_dir_path(__FILE__) . 'includes/custom-post-types.php');
 
 // Include Shortcodes
-require_once(plugin_dir_path(__FILE__) . 'includes/shortcodes.php');
+// require_once(plugin_dir_path(__FILE__) . 'includes/shortcodes.php');
 
 // Include Custom Fields (ACF setup)
 require_once(plugin_dir_path(__FILE__) . 'includes/custom-fields.php');
@@ -51,37 +51,5 @@ require_once(plugin_dir_path(__FILE__) . 'includes/custom-columns.php');
 // Include Functions (for upload directories)
 require_once(plugin_dir_path(__FILE__) . 'includes/functions.php');
 
-function generate_sermon_feed() {
-    add_feed('sermons', 'sermon_feed_callback');
-}
-add_action('init', 'generate_sermon_feed');
-
-function sermon_feed_callback() {
-    $posts = get_posts(array('post_type' => 'sermon', 'posts_per_page' => -1));
-
-    header('Content-Type: application/rss+xml; charset=' . get_option('blog_charset'), true);
-
-    echo '<?xml version="1.0" encoding="' . get_option('blog_charset') . '"?' . '>';
-    echo '<rss version="2.0">';
-    echo '<channel>';
-    echo '<title>' . get_bloginfo('name') . ' - Sermons</title>';
-    echo '<link>' . get_bloginfo('url') . '</link>';
-    echo '<description>' . get_bloginfo('description') . '</description>';
-
-    foreach ($posts as $post) {
-        setup_postdata($post);
-        $audio_url = wp_get_attachment_url(get_post_meta($post->ID, '_sermon_audio', true));
-
-        echo '<item>';
-        echo '<title>' . get_the_title($post->ID) . '</title>';
-        echo '<link>' . get_permalink($post->ID) . '</link>';
-        echo '<description>' . get_the_excerpt($post->ID) . '</description>';
-        echo '<enclosure url="' . esc_url($audio_url) . '" length="' . filesize(get_attached_file(get_post_meta($post->ID, '_sermon_audio', true))) . '" type="audio/mpeg" />';
-        echo '<guid>' . get_permalink($post->ID) . '</guid>';
-        echo '<pubDate>' . get_the_date('r', $post->ID) . '</pubDate>';
-        echo '</item>';
-    }
-
-    echo '</channel>';
-    echo '</rss>';
-}
+// // Include sermon rss generator
+require_once(plugin_dir_path(__FILE__) . 'includes/rss.php');
