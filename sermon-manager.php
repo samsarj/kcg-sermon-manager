@@ -24,11 +24,12 @@ if (!defined('MY_ACF_URL')) {
 // Check if ACF is already active
 if (!class_exists('ACF')) {
     // Include the ACF plugin main file
-    include_once(MY_ACF_PATH . 'acf.php');
+    include_once (MY_ACF_PATH . 'acf.php');
 
     // Customize the URL setting to fix incorrect asset URLs
     add_filter('acf/settings/url', 'my_acf_settings_url');
-    function my_acf_settings_url($url) {
+    function my_acf_settings_url($url)
+    {
         return MY_ACF_URL;
     }
 
@@ -37,19 +38,19 @@ if (!class_exists('ACF')) {
 }
 
 // Include Custom Post Types
-require_once(plugin_dir_path(__FILE__) . 'includes/custom-post-types.php');
+require_once (plugin_dir_path(__FILE__) . 'includes/custom-post-types.php');
 
 // Include Shortcodes
 // require_once(plugin_dir_path(__FILE__) . 'includes/shortcodes.php');
 
 // Include Custom Fields (ACF setup)
-require_once(plugin_dir_path(__FILE__) . 'includes/custom-fields.php');
+require_once (plugin_dir_path(__FILE__) . 'includes/custom-fields.php');
 
 // Include Custom Columns (admin tables)
-require_once(plugin_dir_path(__FILE__) . 'includes/custom-columns.php');
+require_once (plugin_dir_path(__FILE__) . 'includes/custom-columns.php');
 
 // Include Functions (for upload directories)
-require_once(plugin_dir_path(__FILE__) . 'includes/functions.php');
+require_once (plugin_dir_path(__FILE__) . 'includes/functions.php');
 
 // // Include sermon rss generator
-require_once(plugin_dir_path(__FILE__) . 'includes/rss.php');
+require_once (plugin_dir_path(__FILE__) . 'includes/rss.php');

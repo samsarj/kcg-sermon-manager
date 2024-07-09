@@ -1,59 +1,109 @@
 <?php
 
-function render_sermon_rss_settings() {
+function register_rss_feed_settings() {
+    register_setting('rss_feed_settings_group', 'rss_feed_name');
+    register_setting('rss_feed_settings_group', 'rss_feed_description');
+    register_setting('rss_feed_settings_group', 'rss_feed_author');
+    register_setting('rss_feed_settings_group', 'rss_feed_owner_name');
+    register_setting('rss_feed_settings_group', 'rss_feed_owner_email');
+    register_setting('rss_feed_settings_group', 'rss_feed_image');
+}
+add_action('admin_init', 'register_rss_feed_settings');
+
+
+function render_rss_feed_settings_page() {
     ?>
     <div class="wrap">
         <h1>RSS Feed Settings</h1>
-        <p>Manage RSS feed details for your Sermons.</p>
-
-        <?php
-        if (function_exists('acf_form')) {
-            acf_form(array(
-                'post_id' => 'options', // Options page ID
-                'field_groups' => array('group_rss_feed_settings'), // ACF field group key
-                'submit_value' => 'Save Changes',
-                'updated_message' => 'Settings saved successfully!',
-            ));
-        } else {
-            echo '<p>ACF plugin is required to display settings form.</p>';
-        }
-        ?>
-
+        <form method="post" action="options.php">
+            <?php settings_fields('rss_feed_settings_group'); ?>
+            <?php do_settings_sections('rss_feed_settings_group'); ?>
+            <table class="form-table">
+                <tr valign="top">
+                    <th scope="row">RSS Feed Name</th>
+                    <td><input type="text" name="rss_feed_name" value="<?php echo esc_attr(get_option('rss_feed_name')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">RSS Feed Description</th>
+                    <td><textarea name="rss_feed_description"><?php echo esc_attr(get_option('rss_feed_description')); ?></textarea></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">RSS Feed Author</th>
+                    <td><input type="text" name="rss_feed_author" value="<?php echo esc_attr(get_option('rss_feed_author')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Owner Name</th>
+                    <td><input type="text" name="rss_feed_owner_name" value="<?php echo esc_attr(get_option('rss_feed_owner_name')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Owner Email Address</th>
+                    <td><input type="email" name="rss_feed_owner_email" value="<?php echo esc_attr(get_option('rss_feed_owner_email')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">RSS Feed Image</th>
+                    <td>
+                        <input type="text" id="rss_feed_image" name="rss_feed_image" value="<?php echo esc_attr(get_option('rss_feed_image')); ?>" />
+                        <button type="button" class="button" id="upload_image_button">Upload Image</button>
+                    </td>
+                </tr>
+            </table>
+            <?php submit_button(); ?>
+        </form>
     </div>
     <?php
 }
 
-// Hook into the admin menu setup
-add_action('admin_menu', 'register_sermon_rss_submenu_page');
-
-// Function to register the submenu page under Sermons
-function register_sermon_rss_submenu_page() {
+function register_rss_feed_settings_submenu() {
     add_submenu_page(
-        'edit.php?post_type=sermon', // Parent menu slug (Sermons post type)
-        'RSS Feed Settings',         // Page title
-        'RSS Feed',                  // Menu title
-        'manage_options',            // Capability required to access
-        'sermon-rss-settings',       // Menu slug
-        'render_sermon_rss_settings' // Callback function to render the page
+        'edit.php?post_type=sermon',
+        'RSS Feed Settings',
+        'RSS Feed',
+        'manage_options',
+        'rss-feed-settings',
+        'render_rss_feed_settings_page'
     );
 }
+add_action('admin_menu', 'register_rss_feed_settings_submenu');
+
+function rss_feed_settings_scripts() {
+    wp_enqueue_media();
+    ?>
+    <script>
+    jQuery(document).ready(function($){
+        $('#upload_image_button').click(function(e) {
+            e.preventDefault();
+            var image = wp.media({ 
+                title: 'Upload Image',
+                multiple: false
+            }).open()
+            .on('select', function(e){
+                var uploaded_image = image.state().get('selection').first();
+                var image_url = uploaded_image.toJSON().url;
+                $('#rss_feed_image').val(image_url);
+            });
+        });
+    });
+    </script>
+    <?php
+}
+add_action('admin_footer', 'rss_feed_settings_scripts');
 
 
+// Generate RSS Feed
 function generate_sermon_feed() {
     add_feed('sermons', 'sermon_feed_callback');
 }
 add_action('init', 'generate_sermon_feed');
 
 function sermon_feed_callback() {
-    $posts = get_posts(array('post_type' => 'sermon', 'posts_per_page' => -1));
+    $rss_feed_name = get_option('rss_feed_name');
+    $rss_feed_description = get_option('rss_feed_description');
+    $rss_feed_author = get_option('rss_feed_author');
+    $rss_feed_owner_name = get_option('rss_feed_owner_name');
+    $rss_feed_owner_email = get_option('rss_feed_owner_email');
+    $rss_feed_image = get_option('rss_feed_image');
 
-    // Get RSS feed details from ACF options page
-    $rss_feed_name = get_field('rss_feed_name', 'option');
-    $rss_feed_description = get_field('rss_feed_description', 'option');
-    $rss_feed_author = get_field('rss_feed_author', 'option');
-    $rss_feed_owner_name = get_field('rss_feed_owner_name', 'option');
-    $rss_feed_owner_email = get_field('rss_feed_owner_email', 'option');
-    $rss_feed_image = get_field('rss_feed_image', 'option');
+    $posts = get_posts(array('post_type' => 'sermon', 'posts_per_page' => -1));
 
     header('Content-Type: application/rss+xml; charset=' . get_option('blog_charset'), true);
 
@@ -86,7 +136,6 @@ function sermon_feed_callback() {
         $speakers = wp_get_post_terms($post->ID, 'speaker');
         $speaker_name = !empty($speakers) ? $speakers[0]->name : '';
 
-        // Ensure the audio URL is a string
         $audio_url = '';
         $audio_filesize = 0;
 
@@ -98,21 +147,11 @@ function sermon_feed_callback() {
             }
         }
 
-        // Debugging output
-        // error_log("Post ID: " . $post->ID);
-        // error_log("Audio URL: " . print_r($audio_url, true));
-        // error_log("Series Image URL: " . print_r($series_image_url, true));
-        // error_log("Series Name: " . print_r($series_name, true));
-        // error_log("Sermon Passage: " . print_r($sermon_passage, true));
-        // error_log("Speaker Name: " . print_r($speaker_name, true));
-
         echo '<item>';
         echo '<title>' . esc_html(get_the_title($post->ID)) . '</title>';
         echo '<link>' . esc_url(get_permalink($post->ID)) . '</link>';
         
         if (!empty($sermon_passage)) {
-            // echo '<description>' . esc_html(get_the_excerpt($post->ID)) . '</description>';
-            // echo '<itunes:summary>' . esc_html($sermon_passage) . '</itunes:summary>';
             echo '<description>' . esc_html($sermon_passage) . '</description>';
         }
         if (!empty($audio_url)) {
@@ -137,3 +176,11 @@ function sermon_feed_callback() {
 
     wp_reset_postdata();
 }
+
+// Enqueue necessary scripts and styles for ACF
+function my_acf_admin_enqueue_scripts() {
+    if (function_exists('acf_enqueue_uploader')) {
+        acf_enqueue_uploader();
+    }
+}
+add_action('admin_enqueue_scripts', 'my_acf_admin_enqueue_scripts');
