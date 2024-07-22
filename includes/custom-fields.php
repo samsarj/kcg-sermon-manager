@@ -14,7 +14,7 @@ if (function_exists('acf_add_local_field_group')) {
                 'type' => 'file',
                 'instructions' => 'Upload the audio file for this sermon.',
                 'required' => true,
-                'return_format' => 'array,'
+                'return_format' => 'array'
             ),
             array(
                 'key' => 'field_passage',

@@ -1,166 +1,98 @@
-/* CSS for Sermon Manager Plugin */
-
-:root {
-    --sermon-bg: #ffffff; /* Default background color */
-    --sermon-c1: #000000; /* Default font color */
-    --sermon-c2: #333333; /* Secondary font color */
-    --sermon-c3: #666666; /* Tertiary font color */
-    --sermon-c4: #999999; /* Quaternary font color */
-    --sermon-c5: #cccccc; /* Quinternary font color */
-    --sermon-c6: #dddddd; /* Senary font color */
-}
-
-/* CSS for Latest Sermon */
-.latest-sermon-container {
-    /* width: 100%; */
-    /* aspect-ratio: 5/2; */
-    margin: 0 -20px 0 -20px;
-    padding: 40px;
-    /* padding-top:0; */
-    /* margin: 0; */
-    /* border: 1px solid #ccc; */
-    background-color: var(--sermon-bg);
-    transition: background-color 0.3s ease;
-    box-sizing: border-box;
-}
-.latest-sermon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.latest {
+    display:flex;
     flex-direction: column;
-}
-.latest-sermon>* {
-   margin:0;
-   
-}
-
-.latest-sermon-container h2 {
-    margin: 0;
-    /* font-size: 24px;
-    margin-bottom: 10px; */
-    color: var(--sermon-c3);
-}
-
-.latest-sermon h3 {
-    /* font-size: 20px;
-    margin-bottom: 5px; */
-    color: var(--sermon-c1);
-}
-
-.latest-sermon p {
-    /* font-size: 20px;
-    margin-bottom: 5px; */
-    color: var(--sermon-c2);
-}
-
-
-
-.latest-sermon-container {
-    /* border: 1px solid #ddd; */
-    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
-    /* background-color: #fff; */
+    gap: var(--wp--preset--spacing--40);
 }
 
 .latest-sermon {
-    /* margin-top: 20px; */
+    text-align: center;
+    width:100%
 }
 
-.latest-sermon h3 {
-    /* margin-bottom: 10px; */
-    /* color: var(--pri-col, #000); */
+.sermon-main {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.series-image img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin-bottom: 10px;
+.latest-sermon .sermon-title {
+    margin: 0;
 }
 
-.latest-sermon audio {
-    width: 100%;
-    /* margin-top: 10px; */
-}
-
-
-/* Grid layout for series images */
-.series-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-/* Each series item */
-.series-item {
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    aspect-ratio: 3/2;
-    border: 1px solid #ddd;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.series-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -1;
-}
-
-.series-item .content {
-    width: 100%;
-    height: 100%;
+.sermon-details {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: black;
-    background-color: var(--pri-col);
+    flex-wrap: wrap;
+    margin-bottom: var(--wp--preset--spacing--40);
 }
 
-.series-item .content h3 {
-    color: #eee;
-    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+.sermon-details .sermon-detail:not(:last-child)::after {
+    content: "\00a0|\00a0";
 }
 
-.series-item:hover img,
-.series-item:hover .content h3 {
-    transform: scale(1.1);
-    color: #fff;
-    /* transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease; */
+.sermon-excerpt {
+    max-width: 800px;
+    margin-bottom: var(--wp--preset--spacing--40);
 }
 
-.series-item img,
-.series-item .content h3 {
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease;
+.sermon-main audio {
+    width: 80vw;
+    max-width: 800px;
 }
 
-
-
-.latest-series {
-    width: 100%;
+.sermon-series {
+    display: flex;
+    /* max-width: 800px; */
+    justify-content: center;
+    align-items: center;
+    gap: var(--wp--preset--spacing--40);
 }
 
-
-
-.latest-series-item {
-    padding: 20px 30vw;
-    box-sizing: border-box;
-    background-color: var(--sermon-bg);
-    color: var(--sermon-c1); /* Default font color */
+.sermon-series * {
+    margin: 0;
 }
 
-.latest-series-item h3 {
-    color: var(--sermon-c1);
+.sermon-series-content .series-details * {
+    margin-top: var(--wp--preset--spacing--20);
 }
 
-.latest-series-item p {
-    color: var(--sermon-c2);
+.sermon-series img {
+    width: 300px;
+    height: 200px;
 }
 
-.latest-series-item .series-button {
-    background-color: var(--sermon-c3);
-    color: var(--sermon-bg);
-    border: none;
-    padding: 10px;
-    cursor: pointer;
+/* CSS for handling cases where details need to be on new lines */
+@media (max-width: 768px) {
+    .sermon-details {
+        display: block; /* Forces block display on smaller screens */
+    }
+    .sermon-details .sermon-detail:not(:last-child)::after {
+        content: ""; /* Remove separator on smaller screens */
+    }
+    .sermon-series {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sermon-series * {
+        text-align: center;
+    }
+}
+
+.sermon-title {
+    text-align: center;
+}
+
+.sermon-single {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wp--preset--spacing--40);
+    align-items: center;
+    /* text-align: center; */
+}
+
+.sermon-single > * {
+    margin: 0;
 }

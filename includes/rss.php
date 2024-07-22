@@ -91,7 +91,7 @@ add_action('admin_footer', 'rss_feed_settings_scripts');
 
 // Generate RSS Feed
 function generate_sermon_feed() {
-    add_feed('sermons', 'sermon_feed_callback');
+    add_feed('sermon-feed', 'sermon_feed_callback');
 }
 add_action('init', 'generate_sermon_feed');
 

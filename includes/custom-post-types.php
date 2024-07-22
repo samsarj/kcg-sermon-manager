@@ -21,6 +21,7 @@ function sm_register_sermon_post_type() {
         'public' => true,
         'publicly_queryable' => true,
         'show_ui' => true,
+        'show_in_rest' => true,
         'show_in_menu' => true,
         'menu_icon' => 'dashicons-format-quote',
         'query_var' => true,
@@ -29,7 +30,7 @@ function sm_register_sermon_post_type() {
         'has_archive' => true,
         'hierarchical' => false,
         'menu_position' => 20,
-        'supports' => array('title', 'thumbnail'),
+        'supports' => array('title', 'thumbnail', 'excerpt'),
     );
 
     register_post_type('sermon', $args);
