@@ -128,7 +128,14 @@ if (function_exists('acf_add_local_field_group')) {
                     'Revelation' => 'Revelation',
                 ),
             ),
-            
+            array(
+                'key' => 'field_series_title_in_image',
+                'label' => 'Title in Image',
+                'name' => 'series_title_in_image',
+                'type' => 'true_false',
+                'instructions' => 'Indicate whether the series title is included in the image.',
+                'default_value' => 1,
+            ),
         ),
         'location' => array(
             array(
@@ -147,6 +154,7 @@ if (function_exists('acf_add_local_field_group')) {
         'active' => true,
         'description' => '',
     ));
+    
 
     acf_add_local_field_group(array(
         'key' => 'group_speaker_details',
