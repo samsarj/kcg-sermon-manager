@@ -36,7 +36,7 @@ function sermon_single_shortcode($atts)
     if ($series && !is_wp_error($series)) {
         $series_id = $series[0]->term_id; // Assuming there's only one series per sermon
         // Call the series shortcode
-        $output .= do_shortcode('[sermon_series id="' . $series_id . '"]');
+        $output .= do_shortcode('[series id="' . $series_id . '"]');
     }
 
     $output .= '</div>';

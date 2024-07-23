@@ -22,9 +22,9 @@ function latest_sermon_series_shortcode($atts)
             $series_id = $series->term_id;
 
             // Use the series shortcode function to display the series
-            return do_shortcode('[sermon_series id="' . $series_id . '"]');
+            return do_shortcode('[series id="' . $series_id . '"]');
         } else {
-            return '<p>No series associated with the latest sermon.</p>';
+            return '';
         }
     } else {
         return '<p>No sermons found.</p>';

@@ -1,17 +1,22 @@
 <?php
-function series_details_shortcode($atts)
-{
+
+function series_details_shortcode($atts) {
     // Attributes with default values
     $atts = shortcode_atts(array(
-        'id' => '', // Series ID
+        'id' => '', // Series ID (optional)
     ), $atts, 'series_details');
 
-    // Get series ID from attributes
-    $series_id = $atts['id'];
-
-    // If no ID provided, return a message
-    if (empty($series_id)) {
-        return '<p>No series ID provided.</p>';
+    // If an ID is provided, use it
+    if (!empty($atts['id'])) {
+        $series_id = $atts['id'];
+    } else {
+        // Get the term ID from the current context if no ID is provided
+        if (is_tax('series')) {
+            $term = get_queried_object();
+            $series_id = $term->term_id;
+        } else {
+            return '<p>No series ID provided and not on a series archive page.</p>';
+        }
     }
 
     // Get the series term object

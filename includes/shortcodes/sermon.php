@@ -26,39 +26,11 @@ function sermon_shortcode($atts)
     // Start building the output
     $output = '<div class="sermon-main">';
 
+    // Call the sermon_details shortcode
+    $output .= do_shortcode('[sermon_details id="' . $post_id . '"]');
+
     // Get ACF fields
     $sermon_audio = get_field('sermon_audio', $post_id);
-    $sermon_passage = get_field('sermon_passage', $post_id);
-
-    // Get the sermon passage if it exists
-    if ($sermon_passage) {
-        $passage_url = urlencode($sermon_passage);
-        $bible_gateway_url = 'https://www.biblegateway.com/passage/?search=' . $passage_url . '&version=NIVUK';
-        $passage_output = '<a href="' . esc_url($bible_gateway_url) . '" target="_blank" rel="noopener noreferrer">' . esc_html($sermon_passage) . '</a>';
-    } else {
-        $passage_output = '<p>No passage available.</p>';
-    }
-
-    // Get speaker details
-    $speaker = get_the_terms($post_id, 'speaker');
-    if ($speaker && !is_wp_error($speaker)) {
-        $speaker_name = esc_html($speaker[0]->name); // Assuming there's only one speaker per sermon
-        $speaker_link = get_term_link($speaker[0]);
-        $speaker_output = '<a href="' . esc_url($speaker_link) . '">' . $speaker_name . '</a>';
-    } else {
-        $speaker_output = '<p>No speaker information available.</p>';
-    }
-
-    // Get sermon date
-    $sermon_date = get_the_date('D jS F Y', $post_id);
-    $date_output = esc_html($sermon_date);
-
-    // Add details to the output
-    $output .= '<div class="sermon-details">';
-    $output .= '<div class="sermon-detail">' . $passage_output . '</div>';
-    $output .= '<div class="sermon-detail">' . $speaker_output . '</div>';
-    $output .= '<div class="sermon-detail">' . $date_output . '</div>';
-    $output .= '</div>';
 
     // Add the excerpt if it exists
     $excerpt = has_excerpt($post_id) ? get_the_excerpt($post_id) : '';
@@ -84,3 +56,4 @@ function sermon_shortcode($atts)
     return $output;
 }
 add_shortcode('sermon', 'sermon_shortcode');
+?>
