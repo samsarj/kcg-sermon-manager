@@ -91,10 +91,10 @@ add_action('admin_footer', 'rss_feed_settings_scripts');
 
 // Generate RSS Feed
 function generate_sermon_feed() {
-    add_feed('sermon-feed', 'sermon_feed_callback');
+    add_feed('podcast', 'sermon_feed_callback');
 }
-add_action('init', 'generate_sermon_feed');
 
+add_action('init', 'generate_sermon_feed');
 function sermon_feed_callback() {
     $rss_feed_name = get_option('rss_feed_name');
     $rss_feed_description = get_option('rss_feed_description');
@@ -107,26 +107,49 @@ function sermon_feed_callback() {
 
     header('Content-Type: application/rss+xml; charset=' . get_option('blog_charset'), true);
 
-    echo '<?xml version="1.0" encoding="' . get_option('blog_charset') . '"?' . '>';
-    echo '<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">';
-    echo '<channel>';
-    echo '<title>' . esc_html($rss_feed_name) . '</title>';
-    echo '<link>' . esc_url(get_bloginfo('url')) . '</link>';
-    echo '<description>' . esc_html($rss_feed_description) . '</description>';
-    echo '<language>en-us</language>';
-    echo '<itunes:author>' . esc_html($rss_feed_author) . '</itunes:author>';
+    echo '<?xml version="1.0" encoding="' . get_option('blog_charset') . '"?' . '>' . "\n";
+    echo '<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">' . "\n";
+    echo '    <channel>' . "\n";
+    echo '        <title>' . esc_html($rss_feed_name) . '</title>' . "\n";
+    echo '        <link>' . esc_url(get_bloginfo('url')) . '</link>' . "\n";
+    echo '        <description>' . esc_html($rss_feed_description) . '</description>' . "\n";
+    echo '        <language>en-us</language>' . "\n";
+    echo '        <itunes:author>' . esc_html($rss_feed_author) . '</itunes:author>' . "\n";
+
+    // Add itunes:category
+    echo '        <itunes:category text="Religion &amp; Spirituality">' . "\n";
+    echo '            <itunes:category text="Christianity" />' . "\n";
+    echo '        </itunes:category>' . "\n";
+
+    // Add itunes:explicit
+    echo '        <itunes:explicit>false</itunes:explicit>' . "\n";
+
     if ($rss_feed_image) {
-        echo '<itunes:image href="' . esc_url($rss_feed_image) . '" />';
+        echo '        <itunes:image href="' . esc_url($rss_feed_image) . '" />' . "\n";
     }
-    echo '<itunes:owner>';
-    echo '<itunes:name>' . esc_html($rss_feed_owner_name) . '</itunes:name>';
-    echo '<itunes:email>' . esc_html($rss_feed_owner_email) . '</itunes:email>';
-    echo '</itunes:owner>';
+    echo '        <itunes:owner>' . "\n";
+    echo '            <itunes:name>' . esc_html($rss_feed_owner_name) . '</itunes:name>' . "\n";
+    echo '            <itunes:email>' . esc_html($rss_feed_owner_email) . '</itunes:email>' . "\n";
+    echo '        </itunes:owner>' . "\n";
 
     foreach ($posts as $post) {
         setup_postdata($post);
 
         $sermon_audio = get_field('sermon_audio', $post->ID);
+        $audio_url = '';
+        $audio_filesize = 0;
+
+        if (is_array($sermon_audio) && isset($sermon_audio['url'])) {
+            $audio_url = $sermon_audio['url'];
+
+            if (isset($sermon_audio['id'])) {
+                $audio_file = get_attached_file($sermon_audio['id']);
+                if ($audio_file && file_exists($audio_file)) {
+                    $audio_filesize = filesize($audio_file);
+                }
+            }
+        }
+
         $sermon_passage = get_field('sermon_passage', $post->ID);
         $series = wp_get_post_terms($post->ID, 'series');
         $series_name = !empty($series) ? $series[0]->name : '';
@@ -136,46 +159,53 @@ function sermon_feed_callback() {
         $speakers = wp_get_post_terms($post->ID, 'speaker');
         $speaker_name = !empty($speakers) ? $speakers[0]->name : '';
 
-        $audio_url = '';
-        $audio_filesize = 0;
-
-        if (is_numeric($sermon_audio)) {
-            $audio_url = wp_get_attachment_url($sermon_audio);
-            $audio_file = get_attached_file($sermon_audio);
-            if ($audio_file && file_exists($audio_file)) {
-                $audio_filesize = filesize($audio_file);
-            }
-        }
-
-        echo '<item>';
-        echo '<title>' . esc_html(get_the_title($post->ID)) . '</title>';
-        echo '<link>' . esc_url(get_permalink($post->ID)) . '</link>';
+        $post_excerpt = get_the_excerpt($post->ID);
         
+        // Combine both passage and excerpt with passage first
+        $description = '';
         if (!empty($sermon_passage)) {
-            echo '<description>' . esc_html($sermon_passage) . '</description>';
+            $description .= $sermon_passage;
         }
+        if (!empty($post_excerpt)) {
+            // Add a line break or separator if both are present
+            if (!empty($description)) {
+                $description .= ". "; // Adds period
+            }
+            $description .= $post_excerpt;
+        }
+
+        // Begin sermon item
+        
+        echo '        <item>' . "\n";
+        echo '            <title>' . esc_html(get_the_title($post->ID)) . '</title>' . "\n";
+        echo '            <link>' . esc_url(get_permalink($post->ID)) . '</link>' . "\n";
+        
+        // Output the combined description
+        if (!empty($description)) {
+            echo '            <description>' . esc_html($description) . '</description>' . "\n";
+        }
+
         if (!empty($audio_url)) {
-            echo '<enclosure url="' . esc_url($audio_url) . '" length="' . esc_attr($audio_filesize) . '" type="audio/mpeg" />';
+            echo '            <enclosure url="' . esc_url($audio_url) . '" length="' . esc_attr($audio_filesize) . '" type="audio/mpeg" />' . "\n";
         }
-        echo '<guid>' . esc_url(get_permalink($post->ID)) . '</guid>';
-        echo '<pubDate>' . esc_html(get_the_date('r', $post->ID)) . '</pubDate>';
+        echo '            <guid>' . esc_url(get_permalink($post->ID)) . '</guid>' . "\n";
+        echo '            <pubDate>' . esc_html(get_the_date('r', $post->ID)) . '</pubDate>' . "\n";
         if (!empty($series_image_url)) {
-            echo '<itunes:image href="' . esc_url($series_image_url) . '" />';
-        }
-        if (!empty($series_name)) {
-            echo '<itunes:season>' . esc_html($series_name) . '</itunes:season>';
+            echo '            <itunes:image href="' . esc_url($series_image_url) . '" />' . "\n";
         }
         if (!empty($speaker_name)) {
-            echo '<itunes:author>' . esc_html($speaker_name) . '</itunes:author>';
+            echo '            <itunes:author>' . esc_html($speaker_name) . '</itunes:author>' . "\n";
         }
-        echo '</item>';
+        echo '        </item>' . "\n";
     }
 
-    echo '</channel>';
-    echo '</rss>';
+    echo '    </channel>' . "\n";
+    echo '</rss>' . "\n";
 
     wp_reset_postdata();
 }
+
+
 
 // Enqueue necessary scripts and styles for ACF
 function my_acf_admin_enqueue_scripts() {
