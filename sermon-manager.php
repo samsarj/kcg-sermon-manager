@@ -24,9 +24,6 @@ foreach ($shortcode_files as $file) {
 // Include Custom Fields (ACF setup)
 require_once (plugin_dir_path(__FILE__) . 'includes/custom-fields.php');
 
-// Include Functions (for upload directories)
-require_once (plugin_dir_path(__FILE__) . 'includes/functions.php');    
-
 // // Include sermon rss generator
 require_once (plugin_dir_path(__FILE__) . 'includes/rss.php');
 
