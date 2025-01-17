@@ -11,6 +11,18 @@ function series_grid_shortcode() {
         return '<p>No series found.</p>';
     }
 
+    // Retrieve the ACF field group for series
+    $field_group = acf_get_field_group('group_series_details');
+    $fields = acf_get_fields($field_group['key']);
+
+    $book_choices = array();
+    foreach ($fields as $field) {
+        if ($field['name'] === 'series_book') {
+            $book_choices = $field['choices'];
+            break;
+        }
+    }
+
     // Array to store series with their latest sermon date
     $series_with_dates = array();
 
@@ -51,10 +63,53 @@ function series_grid_shortcode() {
         return strcmp($b['latest_sermon_date'], $a['latest_sermon_date']);
     });
 
-    // Start building the output
-    $output = '<div class="series-grid">';
+    // Build the filter dropdowns
+    $output = '<form method="GET" class="series-filter-form">';
+    $output .= '<label for="book-filter">Filter by Book:</label>';
+    $output .= '<select name="book" id="book-filter">';
+    $output .= '<option value="">All Books</option>';
 
-    foreach ($series_with_dates as $item) {
+    foreach ($book_choices as $value => $label) {
+        $selected = (isset($_GET['book']) && $_GET['book'] == $value) ? 'selected' : '';
+        $output .= '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+    }
+    
+    $output .= '</select>';
+
+    $output .= '<label for="date-filter">Sort by Date:</label>';
+    $output .= '<select name="date" id="date-filter">';
+    $output .= '<option value="desc"' . (isset($_GET['date']) && $_GET['date'] == 'desc' ? 'selected' : '') . '>Newest First</option>';
+    $output .= '<option value="asc"' . (isset($_GET['date']) && $_GET['date'] == 'asc' ? 'selected' : '') . '>Oldest First</option>';
+    $output .= '</select>';
+
+    $output .= '<button type="submit">Filter</button>';
+    $output .= '</form>';
+
+    // Start building the output
+    $output .= '<div class="series-grid">';
+
+    // Apply the filters
+    $filtered_series = array_filter($series_with_dates, function($item) {
+        $book_filter = isset($_GET['book']) ? $_GET['book'] : '';
+        if ($book_filter) {
+            $series_book = get_field('series_book', 'series_' . $item['series']->term_id);
+            return $series_book == $book_filter;
+        }
+        return true;
+    });
+
+    // Sort the filtered series by date if specified
+    if (isset($_GET['date']) && $_GET['date'] == 'asc') {
+        usort($filtered_series, function($a, $b) {
+            return strcmp($a['latest_sermon_date'], $b['latest_sermon_date']);
+        });
+    } else {
+        usort($filtered_series, function($a, $b) {
+            return strcmp($b['latest_sermon_date'], $a['latest_sermon_date']);
+        });
+    }
+
+    foreach ($filtered_series as $item) {
         $series = $item['series'];
         $series_id = $series->term_id;
         $series_name = esc_html($series->name);

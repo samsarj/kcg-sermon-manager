@@ -34,7 +34,7 @@ function series_image_shortcode($atts) {
         $alt_text = esc_attr($series_image['alt']);
         return '<img src="' . $image_url . '" alt="' . $alt_text . '" class="series-image">';
     } else {
-        return '<p>No image available for this series.</p>';
+        return '';
     }
 }
 add_shortcode('series_image', 'series_image_shortcode');

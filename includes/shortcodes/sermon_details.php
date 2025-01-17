@@ -35,7 +35,7 @@ function sermon_details_shortcode($atts)
         $bible_gateway_url = 'https://www.biblegateway.com/passage/?search=' . $passage_url . '&version=NIVUK';
         $passage_output = '<a href="' . esc_url($bible_gateway_url) . '" target="_blank" rel="noopener noreferrer">' . esc_html($sermon_passage) . '</a>';
     } else {
-        $passage_output = '<p>No passage available.</p>';
+        $passage_output = 'No passage available.';
     }
 
     // Get speaker details
@@ -45,7 +45,7 @@ function sermon_details_shortcode($atts)
         $speaker_link = get_term_link($speaker[0]);
         $speaker_output = '<a href="' . esc_url($speaker_link) . '">' . $speaker_name . '</a>';
     } else {
-        $speaker_output = '<p>No speaker information available.</p>';
+        $speaker_output = 'No speaker information available.';
     }
 
     // Get sermon date
