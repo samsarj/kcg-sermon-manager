@@ -16,6 +16,10 @@
     align-items: center;
 }
 
+.sermon-main p {
+    margin: 0;
+}
+
 .latest-sermon .sermon-title {
     margin: 0;
 }
@@ -60,15 +64,13 @@
 }
 
 .sermon-series img {
-    width: 300px;
-    max-width: 80vw;
-    height: 200px;
-    object-fit: contain;
-    border-radius: var(--wp--preset--spacing--20);
+    width: 200px;
+    max-width: 100%;
+    border-radius: 0.5rem;
 }
 
 /* CSS for handling cases where details need to be on new lines */
-@media (max-width: 768px) {
+@media (max-width: 936px) {
     .sermon-details {
         display: block; /* Forces block display on smaller screens */
     }
@@ -90,6 +92,7 @@
 }
 
 .sermon-single {
+    padding: var(--wp--preset--spacing--60);
     display: flex;
     flex-direction: column;
     gap: var(--wp--preset--spacing--40);
@@ -101,7 +104,9 @@
     margin: 0;
 }
 
-
+a:any-link {
+    color:inherit
+}
 
 
 
@@ -129,9 +134,10 @@
     box-sizing: border-box;
     background-color: white;
     border: 1px solid var(--wp--preset--color--light);
-    border-radius: var(--wp--preset--spacing--20);
-    padding: 20px;
+    border-radius: 1rem;
+    padding: 0.5rem;
     width: 100%;
+    min-height: 10rem;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     display: flex;
     justify-content: space-between;
@@ -148,7 +154,12 @@
 .sermon-card-sermon {
     display: flex;
     flex-direction: column;
-    gap: var(--wp--preset--spacing--20);
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.sermon-card-sermon a, .series-title a {
+    text-decoration: none;
 }
 
 .sermon-card .sermon-details {
@@ -158,27 +169,23 @@
 @media (max-width: 480px) {
      .sermon-card {
         flex-direction: column-reverse;
-        align-items: start;
+        align-items: center;
+        text-align: center;
+        justify-content: center;
      }
 }
 
-.sermon-card-series img {
-    border-radius: var(--wp--preset--spacing--20);
-    width: 12rem;
-    max-width: 40vw;
-    object-fit: contain;
+.card-series-image {
+    display: block;
+    width: 9rem;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0.5rem;
 }
 
 .sermon-card * {
     margin: 0;
 }
-
-.sermon-card:hover {
-    /* background-color: var(--wp--preset--color--light); */
-}
-
-
-
 
 
 

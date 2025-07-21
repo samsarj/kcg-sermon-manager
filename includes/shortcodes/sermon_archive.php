@@ -85,12 +85,12 @@ function sermon_archive_shortcode($atts)
             $sermon_title = get_the_title();
             $sermon_url = get_permalink();
             $series = get_the_terms($sermon_id, 'series');
-            
+
             // Start the card output
             $output .= '<div class="sermon-card">';
             $output .= '<div class="sermon-card-sermon">';
             $output .= '<h2><a href="' . esc_url($sermon_url) . '">' . esc_html($sermon_title) . '</a></h2>';
-            
+
             // Get series details
             if ($series && !is_wp_error($series)) {
                 $series_name = esc_html($series[0]->name); // Assuming there's only one series per sermon
@@ -108,15 +108,16 @@ function sermon_archive_shortcode($atts)
                 $output .= '<div class="sermon-excerpt">' . esc_html($excerpt) . '</div>';
             }
             $output .= '</div>'; // Close sermon-card-sermon
-            $output .= '<div class="sermon-card-series">';
             if ($series_image_url) {
-                $output .= '<img src="' . esc_url($series_image_url) . '" alt="' . esc_attr($series_name) . '" class="series-image" />';
+                // $output .= '<div class="card-series-image-wrapper">';
+                $output .= '<img src="' . esc_url($series_image_url) . '" alt="' . esc_attr($series_name) . '" class="card-series-image" />';
+                // $output .= '</div>';
             }
-            $output .= '</div>'; // Close sermon-card-series
+
             $output .= '</div>'; // Close sermon-card
         }
         $output .= '</div>'; // Close sermon-cards
-        
+
         // Pagination
         $output .= '<div class="sermon-pagination">';
         $big = 999999999; // need an unlikely integer

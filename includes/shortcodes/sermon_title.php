@@ -35,7 +35,9 @@ function sermon_title_shortcode($atts)
 
     // Build the output
     $output = '<' . $heading_level . ' class="sermon-title">';
-    $output .= '<a href="' . $sermon_url . '">' . esc_html($sermon_title) . '</a>';
+    // $output .= '<a href="' . $sermon_url . '">';
+    $output .= esc_html($sermon_title);
+    // $output .= '</a>';
     $output .= '</' . $heading_level . '>';
 
     // Return the sermon title

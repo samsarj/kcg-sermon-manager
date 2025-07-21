@@ -39,11 +39,16 @@ function custom_sermon_content_filter($content) {
     
     // Check if the current post is of type 'sermon'
     if ($post->post_type === 'sermon') {
-        // Build the custom sermon content using the shortcode
-        $sermon_content = do_shortcode('[sermon_single id="' . $post->ID . '"]');
-    
-        // Return the custom sermon content
-        return $sermon_content;
+        // If we're in the main query loop (archives), add sermon details after the content
+        if (is_main_query() && (is_archive() || is_home())) {
+            // Build the sermon details using the shortcode
+            $sermon_details = do_shortcode('[sermon_details id="' . $post->ID . '"]');
+            return $content . $sermon_details;
+        } else {
+            // For single sermon pages, replace with full sermon content
+            $sermon_content = do_shortcode('[sermon_single id="' . $post->ID . '"]');
+            return $sermon_content;
+        }
     }
     
     // Return original content for non-sermon post types
