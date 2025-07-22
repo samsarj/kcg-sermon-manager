@@ -17,56 +17,24 @@
 }
 
 .sermon-main p {
-    margin: 0;
+    /* margin: 0; */
 }
 
-.latest-sermon .sermon-title {
+/* .latest-sermon .sermon-title {
     margin: 0;
-}
+} */
 
 .sermon-details {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: var(--wp--preset--spacing--40);
 }
 
-.sermon-details .sermon-detail:not(:last-child)::after {
+.sermon-details > *:not(:last-child)::after {
     content: "\00a0|\00a0";
-}
-
-.sermon-excerpt {
-    max-width: 800px;
-    margin-bottom: var(--wp--preset--spacing--40);
-}
-
-.sermon-main audio {
-    width: 80vw;
-    max-width: 800px;
-    /* margin-bottom: var(--wp--preset--spacing--40); */
-}
-
-.sermon-series {
-    display: flex;
-    /* max-width: 800px; */
-    justify-content: center;
-    align-items: center;
-    gap: var(--wp--preset--spacing--40);
-}
-
-.sermon-series * {
-    margin: 0;
-}
-
-.sermon-series-content .series-details * {
-    margin-top: var(--wp--preset--spacing--20);
-}
-
-.sermon-series img {
-    width: 200px;
-    max-width: 100%;
-    border-radius: 0.5rem;
+    display: inline-block;
+    text-decoration: none;
 }
 
 /* CSS for handling cases where details need to be on new lines */
@@ -74,7 +42,7 @@
     .sermon-details {
         display: block; /* Forces block display on smaller screens */
     }
-    .sermon-details .sermon-detail:not(:last-child)::after {
+    .sermon-details > *:not(:last-child)::after {
         content: ""; /* Remove separator on smaller screens */
     }
     .sermon-series {
@@ -85,23 +53,6 @@
     .sermon-series * {
         text-align: center;
     }
-}
-
-.sermon-title {
-    text-align: center;
-}
-
-.sermon-single {
-    padding: var(--wp--preset--spacing--60);
-    display: flex;
-    flex-direction: column;
-    gap: var(--wp--preset--spacing--40);
-    align-items: center;
-    /* text-align: center; */
-}
-
-.sermon-single > * {
-    margin: 0;
 }
 
 a:any-link {
@@ -116,7 +67,7 @@ a:any-link {
 
 
 
-.sermon-archive {
+/* .sermon-archive {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -128,10 +79,10 @@ a:any-link {
     flex-direction: column;
     gap: var(--wp--preset--spacing--40);
     width: 100%;
-}
+} */
 
 .sermon-card {
-    box-sizing: border-box;
+    /* box-sizing: border-box;
     background-color: white;
     border: 1px solid var(--wp--preset--color--light);
     border-radius: 1rem;
@@ -142,28 +93,28 @@ a:any-link {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.3s;
+    transition: all 0.3s; */
 }
 
 .sermon-card-content {
-    display: flex;
+    /* display: flex;
     justify-content: space-between;
-    width: 100%;
+    width: 100%; */
 }
 
 .sermon-card-sermon {
-    display: flex;
+    /* display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 0.5rem;
+    padding: 0.5rem; */
 }
 
 .sermon-card-sermon a, .series-title a {
-    text-decoration: none;
+    /* text-decoration: none; */
 }
 
 .sermon-card .sermon-details {
-    justify-content: start;
+    /* justify-content: start; */
 }
 
 @media (max-width: 480px) {
@@ -176,15 +127,15 @@ a:any-link {
 }
 
 .card-series-image {
-    display: block;
+    /* display: block;
     width: 9rem;
     height: 100%;
     object-fit: cover;
-    border-radius: 0.5rem;
+    border-radius: 0.5rem; */
 }
 
 .sermon-card * {
-    margin: 0;
+    /* margin: 0; */
 }
 
 

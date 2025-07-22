@@ -13,7 +13,7 @@ if (function_exists('acf_add_local_field_group')) {
                 'name' => 'sermon_audio',
                 'type' => 'file',
                 'instructions' => 'Upload the audio file for this sermon.',
-                'required' => true,
+                'required' => false,
                 'return_format' => 'array'
             ),
             array(
