@@ -33,6 +33,12 @@ function enqueue_sermon_styles() {
     
     // Enqueue the layout-specific stylesheet
     wp_enqueue_style('sermon-single-styles', plugin_dir_url(__FILE__) . 'css/sermon-single.css');
+    
+    // Enqueue the series grid stylesheet
+    wp_enqueue_style('series-grid-styles', plugin_dir_url(__FILE__) . 'css/series-grid.css');
+    
+    // Enqueue the homepage layout stylesheet
+    // wp_enqueue_style('sermon-homepage-styles', plugin_dir_url(__FILE__) . 'css/sermon-homepage.css');
 }
 
 add_action('wp_enqueue_scripts', 'enqueue_sermon_styles');
@@ -75,14 +81,44 @@ function custom_sermon_content_filter($content) {
     if (is_single() && get_post_type() === 'sermon') {
         return get_sermon_single_content($post->ID);
     }
+
+    // For the sermons page - check if we're in a specific query context
+    if (is_page('sermons')) {
+        // Use a simple approach - check if this is the first sermon being processed
+        static $sermons_page_first_post = true;
+        
+        if ($sermons_page_first_post) {
+            $sermons_page_first_post = false;
+            // First sermon gets full content (latest sermon)
+            return get_sermon_single_content($post->ID);
+        } else {
+            // Subsequent sermons get archive content (recent sermons)
+            return $content . get_sermon_archive_content($post->ID);
+        }
+    }
     
     // For archive pages, add minimal sermon info
     if (is_archive() || is_home()) {
         return $content . get_sermon_archive_content($post->ID);
     }
     
+    // For other contexts, just return the original content
     return $content;
 }
+
+// Reset the static variable when starting a new page load
+function reset_sermons_page_counter() {
+    if (is_page('sermons')) {
+        // This will reset our static counter for each page load
+        static $reset = false;
+        if (!$reset) {
+            $reset = true;
+        }
+    }
+}
+add_action('wp_head', 'reset_sermons_page_counter');
+add_filter('the_content', 'custom_sermon_content_filter');
+
 add_filter('the_content', 'custom_sermon_content_filter');
 
 // Function to get single sermon content
@@ -248,3 +284,97 @@ function get_sermon_audio_html($post_id) {
     
     return $output;
 }
+
+// Function to get series featured image for archive display
+function get_series_featured_image_html($post_id = null, $size = 'medium', $class = 'series-image') {
+    // Get the post ID if not provided
+    if (!$post_id) {
+        if (in_the_loop()) {
+            $post_id = get_the_ID();
+        } else {
+            global $post;
+            $post_id = $post ? $post->ID : 0;
+        }
+    }
+    
+    if (!$post_id || get_post_type($post_id) !== 'sermon') {
+        return '';
+    }
+    
+    // Get series terms
+    $series_terms = get_the_terms($post_id, 'series');
+    if (!$series_terms || is_wp_error($series_terms)) {
+        return '';
+    }
+    
+    // Get series image
+    $series = $series_terms[0];
+    $series_image_id = get_term_meta($series->term_id, 'series_image', true);
+    
+    if (!$series_image_id) {
+        return '';
+    }
+    
+    // Get image URL
+    $image_url = wp_get_attachment_image_url($series_image_id, $size);
+    if (!$image_url) {
+        return '';
+    }
+    
+    // Get alt text
+    $alt_text = get_post_meta($series_image_id, '_wp_attachment_image_alt', true);
+    if (!$alt_text) {
+        $alt_text = $series->name . ' series image';
+    }
+    
+    return '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($alt_text) . '" class="' . esc_attr($class) . '" />';
+}
+
+// Add shortcode for backward compatibility
+function series_featured_image_shortcode($atts) {
+    $atts = shortcode_atts(array(
+        'size' => 'medium',
+        'class' => 'card-series-image',
+    ), $atts, 'series_featured_image');
+    
+    return get_series_featured_image_html(null, $atts['size'], $atts['class']);
+}
+add_shortcode('series_featured_image', 'series_featured_image_shortcode');
+
+// Filter to replace series image placeholder in template parts
+function replace_series_image_placeholder($content) {
+    // Only process if the content contains our placeholder
+    if (strpos($content, '{{series_image}}') !== false) {
+        // Get the series image HTML
+        $series_image_html = get_series_featured_image_html();
+        
+        // Debug: Log what we're doing
+        error_log('Replacing {{series_image}} placeholder. Image HTML: ' . $series_image_html);
+        
+        // Replace the placeholder with actual image
+        $content = str_replace('{{series_image}}', $series_image_html, $content);
+    }
+    
+    return $content;
+}
+add_filter('the_content', 'replace_series_image_placeholder', 20);
+
+// Also apply to template parts content using render_block filter
+function replace_series_image_in_blocks($block_content, $block) {
+    // Check if this is a template part block with our series-image slug
+    if (isset($block['blockName']) && $block['blockName'] === 'core/template-part') {
+        if (isset($block['attrs']['slug']) && $block['attrs']['slug'] === 'series-image') {
+            error_log('Processing series-image template part block');
+            return replace_series_image_placeholder($block_content);
+        }
+    }
+    
+    // Also check for any content that contains our placeholder
+    if (strpos($block_content, '{{series_image}}') !== false) {
+        error_log('Found {{series_image}} placeholder in block content');
+        return replace_series_image_placeholder($block_content);
+    }
+    
+    return $block_content;
+}
+add_filter('render_block', 'replace_series_image_in_blocks', 10, 2);
