@@ -1,18 +1,57 @@
 <?php
 // Series grid shortcode - displays all series in a grid format
-function series_grid_shortcode($atts) {
-    $atts = shortcode_atts(array(
-        'columns' => '3',
-        'orderby' => 'name',
-        'order' => 'ASC',
-    ), $atts, 'series_grid');
+function series_grid_shortcode() {
     
+    // Get all series terms first
     $series_terms = get_terms(array(
         'taxonomy' => 'series',
         'hide_empty' => true,
-        'orderby' => $atts['orderby'],
-        'order' => $atts['order']
+        'orderby' => 'name',
+        'order' => 'ASC'
     ));
+    
+    // Create array to store series with their most recent sermon dates
+    $series_with_dates = array();
+    
+    foreach ($series_terms as $series) {
+        // Get the most recent sermon for this series
+        $recent_sermon = get_posts(array(
+            'post_type' => 'sermon',
+            'posts_per_page' => 1,
+            'orderby' => 'date',
+            'order' => 'DESC',
+            'tax_query' => array(
+                array(
+                    'taxonomy' => 'series',
+                    'field' => 'term_id',
+                    'terms' => $series->term_id,
+                )
+            )
+        ));
+        
+        if (!empty($recent_sermon)) {
+            $series_with_dates[] = array(
+                'series' => $series,
+                'latest_date' => strtotime($recent_sermon[0]->post_date)
+            );
+        } else {
+            // If no sermons found, assign a very old date so it appears last
+            $series_with_dates[] = array(
+                'series' => $series,
+                'latest_date' => 0
+            );
+        }
+    }
+    
+    // Sort series by most recent sermon date (newest first)
+    usort($series_with_dates, function($a, $b) {
+        return $b['latest_date'] - $a['latest_date'];
+    });
+    
+    // Extract just the series objects in the correct order
+    $series_terms = array_map(function($item) {
+        return $item['series'];
+    }, $series_with_dates);
     
     $output = '';
     
