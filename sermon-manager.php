@@ -2,8 +2,13 @@
 /*
 Plugin Name: Sermon Manager
 Description: A plugin to manage sermons, speakers, and series for King's Church Guildford.
-Version: 1.0
+Version: 2.0.0
 Author: Sam Sarjudeen
+Author URI: https://github.com/samsarj/
+Plugin URI: https://github.com/samsarj/kcg-sermon-manager
+GitHub Plugin URI: https://github.com/samsarj/kcg-sermon-manager
+Primary Branch: main
+Text Domain: kcg-sermon-manager
 */
 
 // Exit if accessed directly
@@ -30,15 +35,6 @@ require_once (plugin_dir_path(__FILE__) . 'includes/rss.php');
 function enqueue_sermon_styles() {
     // Enqueue the sermon-manager stylesheet
     wp_enqueue_style('sermon-manager-styles', plugin_dir_url(__FILE__) . 'css/sermon-manager.css');
-    
-    // Enqueue the layout-specific stylesheet
-    wp_enqueue_style('sermon-single-styles', plugin_dir_url(__FILE__) . 'css/sermon-single.css');
-    
-    // Enqueue the series grid stylesheet
-    wp_enqueue_style('series-grid-styles', plugin_dir_url(__FILE__) . 'css/series-grid.css');
-    
-    // Enqueue the homepage layout stylesheet
-    // wp_enqueue_style('sermon-homepage-styles', plugin_dir_url(__FILE__) . 'css/sermon-homepage.css');
 }
 
 add_action('wp_enqueue_scripts', 'enqueue_sermon_styles');
