@@ -2,16 +2,23 @@
 /* Series Grid Layout */
 .series-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     padding: 0.5rem;
+    align-items: start; /* Prevents stretching of different sized items */
+}
+
+@media (max-width: 600px) {
+    .series-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* Base kcg-card styles for series grid */
 .series-grid .kcg-card {
     position: relative;
     width: 100%;
-    aspect-ratio: 1; /* Makes it square */
+    /* Remove fixed aspect-ratio to allow natural image proportions */
     overflow: hidden;
     border-radius: 1rem;
     padding: 0;
@@ -20,26 +27,28 @@
 .series-grid .kcg-card a {
     display: block;
     width: 100%;
-    height: 100%;
     text-decoration: none;
     color: inherit;
     position: relative;
 }
 
-/* Image-only cards (image with title embedded) */
-.series-grid .kcg-card.image-only .series-image {
+.series-grid .kcg-card.image-only .series-image, 
+.series-grid .kcg-card.image-with-overlay .series-image {
     width: 100%;
-    height: 100%;
+    height: auto; /* Allow natural height based on image ratio */
+    max-height: 300px; /* Prevent overly tall images */
     object-fit: cover;
+    object-position: center;
     display: block;
 }
 
-/* Image with overlay cards (image with title overlay) */
-.series-grid .kcg-card.image-with-overlay .series-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+/* For image-with-overlay, we need the container to match the image */
+.series-grid .kcg-card.image-with-overlay {
+    position: relative;
+}
+
+.series-grid .kcg-card.image-with-overlay a {
+    height: auto; /* Let it size based on image */
 }
 
 .series-grid .kcg-card.image-with-overlay .series-overlay {
@@ -57,22 +66,13 @@
     box-sizing: border-box;
 }
 
-.series-grid .kcg-card.image-with-overlay .series-title {
-    /* color: #fff; */
-    /* margin: 0; */
-    /* font-size: 1.2rem; */
-    /* font-weight: bold; */
-    /* line-height: 1.3; */
-    /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); */
-    /* word-wrap: break-word; */
-    /* hyphens: auto; */
-}
-
 /* No image cards (normal card style) */
 .series-grid .kcg-card.no-image {
-    /* background-color: #fff; */
-    /* border: 1px solid #e0e0e0; */
     padding: 1rem;
+    aspect-ratio: 1; /* Keep square for text-only cards */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .series-grid .kcg-card .series-title {

@@ -1,5 +1,12 @@
 /* Single Sermon Layout */
 
+.sermon-main {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .sermon-details {
     margin: var(--wp--preset--spacing--40) 0;
 }
@@ -54,7 +61,7 @@ a.series-info-full {
 }
 
 
-.sermon-card-content > * {
+.sermon-card-content>* {
     margin: 0;
 }
 
