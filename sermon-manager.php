@@ -2,7 +2,7 @@
 /*
 Plugin Name: Sermon Manager
 Description: A plugin to manage sermons, speakers, and series for King's Church Guildford.
-Version: 2.0.1
+Version: 2.0.2
 Author: Sam Sarjudeen
 Author URI: https://github.com/samsarj/
 Plugin URI: https://github.com/samsarj/kcg-sermon-manager
@@ -33,8 +33,16 @@ require_once (plugin_dir_path(__FILE__) . 'includes/custom-fields.php');
 require_once (plugin_dir_path(__FILE__) . 'includes/rss.php');
 
 function enqueue_sermon_styles() {
-    // Enqueue the sermon-manager stylesheet
-    wp_enqueue_style('sermon-manager-styles', plugin_dir_url(__FILE__) . 'css/sermon-manager.css');
+    // Get plugin version for cache busting
+    $plugin_data = get_plugin_data(__FILE__);
+    $plugin_version = $plugin_data['Version'];
+    
+    // Enqueue component-specific stylesheets with versioning
+    wp_enqueue_style('sermon-manager-series-grid', plugin_dir_url(__FILE__) . 'includes/css/series-grid.css', array(), $plugin_version);
+    wp_enqueue_style('sermon-manager-sermon-single', plugin_dir_url(__FILE__) . 'includes/css/sermon-single.css', array(), $plugin_version);
+    wp_enqueue_style('sermon-manager-latest-sermon', plugin_dir_url(__FILE__) . 'includes/css/latest-sermon.css', array(), $plugin_version);
+    wp_enqueue_style('sermon-manager-sermon-details', plugin_dir_url(__FILE__) . 'includes/css/sermon-details.css', array(), $plugin_version);
+    wp_enqueue_style('sermon-manager-responsive', plugin_dir_url(__FILE__) . 'includes/css/responsive.css', array(), $plugin_version);
 }
 
 add_action('wp_enqueue_scripts', 'enqueue_sermon_styles');
@@ -99,7 +107,7 @@ function custom_sermon_content_filter($content) {
     }
     
     // For archive pages, add minimal sermon info
-    if (is_archive() || is_home()) {
+    if (is_archive()) {
         return $content . get_sermon_archive_content($post->ID);
     }
     
