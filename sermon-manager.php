@@ -2,7 +2,7 @@
 /*
 Plugin Name: Sermon Manager
 Description: A plugin to manage sermons, speakers, and series for King's Church Guildford.
-Version: 2.0.0
+Version: 2.0.1
 Author: Sam Sarjudeen
 Author URI: https://github.com/samsarj/
 Plugin URI: https://github.com/samsarj/kcg-sermon-manager
@@ -78,6 +78,11 @@ function custom_sermon_content_filter($content) {
         return get_sermon_single_content($post->ID);
     }
 
+    // For the front page - treat query loop sermons as single content
+    if (is_front_page()) {
+        return get_sermon_single_content($post->ID);
+    }
+
     // For the sermons page - check if we're in a specific query context
     if (is_page('sermons')) {
         // Use a simple approach - check if this is the first sermon being processed
@@ -113,8 +118,6 @@ function reset_sermons_page_counter() {
     }
 }
 add_action('wp_head', 'reset_sermons_page_counter');
-add_filter('the_content', 'custom_sermon_content_filter');
-
 add_filter('the_content', 'custom_sermon_content_filter');
 
 // Function to get single sermon content
